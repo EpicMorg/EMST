@@ -1,18 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
+#if DEBUG
+using System.Diagnostics;
+#endif
 namespace EpicMorg.Tools
 {
-    static class StringTools
+    public static class StringTools
     {
-        static Regex numeric = new Regex("&#[0-9]+;");
-        #region Special Chars
-        private static SortedList<char, char> Chars = new SortedList<char, char>()
+        static Regex numeric = new Regex("\\&\\#[0-9]+\\;");
+        private static SortedList<char, char> Chars = new SortedList<char, char>();
+        private static SortedList<char, string> Entities = new SortedList<char, string>();
+        private static SortedList<string, char> ReversedEntities = new SortedList<string, char>();
+        private static bool everythingset = false;
+        public enum ReplaceType
         {
-            {'\'','\''},
-        {'Á','Á'},
+            HtmlEntity,
+            CharacterCode
+        }
+        public static string HtmlSpecialChars(string s)
+        {
+            foreach (char c in s.ToCharArray().AsParallel().Distinct().ToArray())
+                if (Chars.ContainsKey(c))
+                    s = s.Replace(c.ToString(), Entities[c]);
+            return s;
+        }
+        public static string HtmlSpecialCharsDecode(string s)
+        {
+            if (!everythingset)
+                set();
+            s=numeric.Replace(s, new MatchEvaluator(rep));
+            foreach (var x in ReversedEntities.Keys.AsParallel().Where(o => s.Contains(o)).ToArray())
+                s=s.Replace(x, ReversedEntities[x].ToString());
+            return s;
+        }
+
+        private static void set()
+        {
+            everythingset = true;
+            try
+            {
+                #region Special Chars
+                Chars = new SortedList<char, char>()
+        {
+{'\'','\''},
+{'Á','Á'},
 {'á','á'},
 {'â','â'},
 {'Â','Â'},
@@ -264,9 +297,10 @@ namespace EpicMorg.Tools
 {'ζ','ζ'},
 
         };
-#endregion
-        #region HTMLEntities
-        private static SortedList<char, string> Entities = new SortedList<char, string>() {{'Á',"&Aacute;"},
+                #endregion
+
+                #region HTMLEntities
+                Entities = new SortedList<char, string>() {{'Á',"&Aacute;"},
 {'\'',"&#39;"},
 {'á',"&aacute;"},
 {'â',"&acirc;"},
@@ -518,12 +552,11 @@ namespace EpicMorg.Tools
 {'Ζ',"&Zeta;"},
 {'ζ',"&zeta;"},
         };
-        private static MatchEvaluator replacer;
-        #endregion
-        #region Reversed entities
-        private static SortedList<string, char> ReversedEntities = new SortedList<string, char>()
-        {
-            {"&amp;",'\''},
+                #endregion
+
+                #region Reversed entities
+                ReversedEntities = new SortedList<string, char>{
+            {"&#039;",'\''},
             {"&Aacute;",'Á'},
 {"&aacute;",'á'},
 {"&acirc;",'â'},
@@ -774,32 +807,17 @@ namespace EpicMorg.Tools
 {"&Yuml;",'Ÿ'},
 {"&Zeta;",'Ζ'},
 {"&zeta;",'ζ'},
+            };
+                #endregion
 
-        };
-        #endregion
-        public enum ReplaceType
-        {
-            HtmlEntity,
-            CharacterCode
-        }
-        public static string HtmlSpecialChars(string s)
-        {
-            foreach (char c in s.ToCharArray().AsParallel().Distinct().ToArray())
-                if (Chars.ContainsKey(c))
-                    s = s.Replace(c.ToString(), Entities[c]);
-            return s;
-        }
-        public static string HtmlSpecialCharsDecode(string s)
-        {
-            numeric.Replace(s, new MatchEvaluator(rep));
-            foreach (var x in ReversedEntities.Keys.AsParallel().Where(o => s.Contains(o)).ToArray())
-                s=s.Replace(x, ReversedEntities[x].ToString());
-            return s;
+            }
+            catch { }
         }
         static string rep(Match m)
         {
             string s=m.ToString();
-            return Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3))).ToString();
+            s=Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3))).ToString();
+            return s;
         }
     }
 }
