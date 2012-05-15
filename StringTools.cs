@@ -9,7 +9,7 @@ namespace EpicMorg.Tools
 {
     public class StringTools
     {
-        Regex numeric = new Regex("\\&\\#[0-9]+\\;");
+        Regex numeric = new Regex("\\&\\#[0-9A-Fa-f]{2}\\;");
         #region Chars
         private static SortedList<char, char> Chars = new SortedList<char, char>()
         {
@@ -784,7 +784,7 @@ namespace EpicMorg.Tools
         }
         public string HtmlSpecialChars(string s)
         {
-            foreach (char c in s.ToCharArray().AsParallel().Distinct().ToArray())
+            foreach (char c in s.ToCharArray().Distinct().ToArray())
                 if (Chars.ContainsKey(c))
                     s = s.Replace(c.ToString(), Entities[c]);
             return s;
@@ -798,14 +798,14 @@ namespace EpicMorg.Tools
             if (r!=ReplaceType.HtmlEntity)
                 s = numeric.Replace(s, new MatchEvaluator(rep));
             if (r!=ReplaceType.CharacterCode)
-                foreach (var x in ReversedEntities.Keys.AsParallel().Where(o => s.Contains(o)).ToArray())
+                foreach (var x in ReversedEntities.Keys.Where(o => s.Contains(o)).ToArray())
                     s = s.Replace(x, ReversedEntities[x].ToString());
             return s;
         }
         string rep(Match m)
         {
             string s=m.ToString();
-            s=Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3))).ToString();
+            s=Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3),System.Globalization.NumberStyles.HexNumber)).ToString();
             return s;
         }
     }
