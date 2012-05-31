@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text.RegularExpressions;
 #if DEBUG
 using System.Diagnostics;
+using System.Text;
 #endif
 namespace EpicMorg.Tools
 {
     public class StringTools
     {
-        Regex numeric = new Regex("\\&\\#[0-9A-Fa-f]{2}\\;");
+        Regex numeric = new Regex("\\&\\#[0-9]{1,3}\\;");
+        Regex urlhex = new Regex("(\\%[0-9A-Fa-f]{2}){2}");
         #region Chars
         private static SortedList<char, char> Chars = new SortedList<char, char>()
         {
@@ -268,7 +270,7 @@ namespace EpicMorg.Tools
         };
         #endregion
         #region HTMLEntities
-                SortedList<char,string> Entities = new SortedList<char, string>() {{'Á',"&Aacute;"},
+        SortedList<char, string> Entities = new SortedList<char, string>() {{'Á',"&Aacute;"},
                         {'\'',"&#39;"},
                         {'á',"&aacute;"},
                         {'â',"&acirc;"},
@@ -520,9 +522,9 @@ namespace EpicMorg.Tools
                         {'Ζ',"&Zeta;"},
                         {'ζ',"&zeta;"},
         };
-                #endregion
+        #endregion
         #region Reversed entities
-                private static SortedList<string, char>  ReversedEntities = new SortedList<string, char>{
+        private static SortedList<string, char> ReversedEntities = new SortedList<string, char>{
             {"&#039;",'\''},
             {"&Aacute;",'Á'},
 {"&aacute;",'á'},
@@ -775,7 +777,7 @@ namespace EpicMorg.Tools
 {"&Zeta;",'Ζ'},
 {"&zeta;",'ζ'},
             };
-                #endregion
+        #endregion
         public enum ReplaceType
         {
             HtmlEntity,
@@ -795,17 +797,31 @@ namespace EpicMorg.Tools
         }
         public string HtmlSpecialCharsDecode(string s, ReplaceType r)
         {
-            if (r!=ReplaceType.HtmlEntity)
+            if (r == ReplaceType.CharacterCode || r == ReplaceType.Both)
                 s = numeric.Replace(s, new MatchEvaluator(rep));
-            if (r!=ReplaceType.CharacterCode)
+            if (r == ReplaceType.HtmlEntity || r == ReplaceType.Both)
                 foreach (var x in ReversedEntities.Keys.Where(o => s.Contains(o)).ToArray())
                     s = s.Replace(x, ReversedEntities[x].ToString());
             return s;
         }
+        public string UrlDecode(string s)
+        {
+            return urlhex.Replace(s, new MatchEvaluator(rep2));
+        }
+        public string UrlEncode(string s)
+        {
+            return "%" + BitConverter.ToString(Encoding.UTF8.GetBytes(s)).Replace('-', '%');
+        }
+        string rep2(Match m)
+        {
+            string s = m.ToString();
+            s = Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3), System.Globalization.NumberStyles.HexNumber)).ToString();
+            return s;
+        }
         string rep(Match m)
         {
-            string s=m.ToString();
-            s=Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3),System.Globalization.NumberStyles.HexNumber)).ToString();
+            string s = m.ToString();
+            s = Convert.ToChar(int.Parse(s.Substring(2, s.Length - 3))).ToString();
             return s;
         }
     }
