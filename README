@@ -1,1 +1,3 @@
-This is library which contains rewritten php fuction htmlspecialchars and htmlspecialchars_decode
+This is library which contains rewritten php fuctions for string encoding/decoding:
+[*] htmlspecialchars/htmlspecialchars_decode
+[*] urlencode/urldecode
