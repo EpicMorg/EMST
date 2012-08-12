@@ -10,7 +10,7 @@ namespace EpicMorg.Tools
 {
     public class StringTools
     {
-        Regex numeric = new Regex("\\&\\#[0-9]{1,3}\\;");
+        Regex numeric = new Regex("\\&\\#[0-9]{1,5}\\;");
         Regex urlhex = new Regex("(\\%[0-9A-Fa-f]{2}){2}");
         #region Chars
         private static SortedList<char, char> Chars = new SortedList<char, char>()
