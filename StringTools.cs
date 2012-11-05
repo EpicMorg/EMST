@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -13,7 +13,8 @@ namespace EpicMorg.Tools
         Regex numeric = new Regex("\\&\\#[0-9]{1,5}\\;");
         Regex urlhex = new Regex("(\\%[0-9A-Fa-f]{2}){2}");
         #region Chars
-        private static SortedList<char, char> Chars = new SortedList<char, char>()
+        private static const char[] hexChars2 = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    	private SortedList<char, char> Chars = new SortedList<char, char>()
         {
 {'\'','\''},
 {'Á','Á'},
@@ -120,7 +121,7 @@ namespace EpicMorg.Tools
 {'κ','κ'},
 {'λ','λ'},
 {'Λ','Λ'},
-{'〈','〈'},
+{'〈','〈'},
 {'«','«'},
 {'←','←'},
 {'⇐','⇐'},
@@ -196,7 +197,7 @@ namespace EpicMorg.Tools
 {'Ψ','Ψ'},
 {'"','"'},
 {'√','√'},
-{'〉','〉'},
+{'〉','〉'},
 {'»','»'},
 {'⇒','⇒'},
 {'→','→'},
@@ -375,7 +376,7 @@ namespace EpicMorg.Tools
                         {'κ',"&kappa;"},
                         {'λ',"&lambda;"},
                         {'Λ',"&Lambda;"},
-                        {'〈',"&lang;"},
+                        {'〈',"&lang;"},
                         {'«',"&laquo;"},
                         {'←',"&larr;"},
                         {'⇐',"&lArr;"},
@@ -451,7 +452,7 @@ namespace EpicMorg.Tools
                         {'Ψ',"&Psi;"},
                         {'"',"&quot;"},
                         {'√',"&radic;"},
-                        {'〉',"&rang;"},
+                        {'〉',"&rang;"},
                         {'»',"&raquo;"},
                         {'⇒',"&rArr;"},
                         {'→',"&rarr;"},
@@ -630,7 +631,7 @@ namespace EpicMorg.Tools
 {"&kappa;",'κ'},
 {"&lambda;",'λ'},
 {"&Lambda;",'Λ'},
-{"&lang;",'〈'},
+{"&lang;",'〈'},
 {"&laquo;",'«'},
 {"&larr;",'←'},
 {"&lArr;",'⇐'},
@@ -706,7 +707,7 @@ namespace EpicMorg.Tools
 {"&Psi;",'Ψ'},
 {"&quot;",'"'},
 {"&radic;",'√'},
-{"&rang;",'〉'},
+{"&rang;",'〉'},
 {"&raquo;",'»'},
 {"&rArr;",'⇒'},
 {"&rarr;",'→'},
@@ -783,6 +784,23 @@ namespace EpicMorg.Tools
             HtmlEntity,
             CharacterCode,
             Both
+        }
+		 public string ToHex(byte[] bytes)
+        {
+            if (bytes == null)
+            {
+                throw new ArgumentNullException("bytes");
+            }
+            int length = bytes.Length * 2;
+            char[] hex = new char[length];
+            int byteIndex = 0;
+            for (int charIndex = 0; charIndex < length; charIndex += 2)
+            {
+                byte byteValue = bytes[byteIndex++];
+                hex[charIndex] = hexChars2[byteValue >> 4];
+                hex[charIndex + 1] = hexChars2[byteValue & 0xF0];
+            }
+            return new string(hex);
         }
         public string HtmlSpecialChars(string s)
         {
