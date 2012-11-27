@@ -136,7 +136,7 @@ namespace EpicMorg.Tools{
 			}
 			while (input < end){
 				sum *= 10;
-				sum += ((int)*input++) - 48;
+				sum += *(input++) - '0';
 			}
 			return pos ? sum : -sum;
 		}
@@ -167,7 +167,7 @@ namespace EpicMorg.Tools{
 			}
 			while (input < end){
 				sum *= 10;
-				sum += ((int)*input++) - 48;
+				sum += *(input++) - '0';
 			}
 			return pos ? sum : -sum;
 		}
@@ -195,5 +195,19 @@ namespace EpicMorg.Tools{
 			}
 			return output;
 		}
+		public unsafe int QuickLongParse(string s)
+        {
+            fixed (char* p = s)
+            {
+                return QuickLongParse(p,0,s.Length);
+            }
+        }
+		public unsafe int QuickLongParse(string s)
+        {
+            fixed (char* p = s)
+            {
+                return QuickLongParse(p,0,s.Length);
+            }
+        }
 	}
 }
