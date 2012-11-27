@@ -2,3 +2,6 @@ This is library which contains rewritten php fuctions for string encoding/decodi
 [*] htmlspecialchars/htmlspecialchars_decode
 [*] urlencode/urldecode
 [*] BitConverter.ToString() fast without dashes
+[*] Fast int.Parse/long.Parse without validation
+[*] Fast int.ToString("X")/long.ToString("X")
+[*] Random string generators 
