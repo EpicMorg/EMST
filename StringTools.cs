@@ -199,10 +199,10 @@ namespace EpicMorg.Tools{
         {
             fixed (char* p = s)
             {
-                return QuickLongParse(p,0,s.Length);
+                return QuickIntParse(p,0,s.Length);
             }
         }
-		public unsafe int QuickLongParse(string s)
+		public unsafe long QuickLongParse(string s)
         {
             fixed (char* p = s)
             {
